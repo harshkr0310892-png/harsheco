@@ -1,0 +1,2 @@
+-- This migration has been replaced by migration 40. This file is kept for compatibility.
+-- All delivery boy RLS policies are now in migration 40.

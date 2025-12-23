@@ -1,0 +1,1 @@
+Write-Output "FILES: $((Get-ChildItem src,supabase -Recurse -File).Count)"; Write-Output "FOLDERS: $((Get-ChildItem src,supabase -Recurse -Directory).Count)"; Write-Output "LINES: $((Get-ChildItem src,supabase -Recurse -File | Get-Content | Measure-Object -Line).Lines)"
