@@ -301,4 +301,11 @@
 .dark .text-muted-foreground {
     color: hsl(0deg 0% 100%);
 }
+:root {
+  --primary: 210 90% 56%;
+}
+
+.text-primary {
+  color: hsl(var(--primary));
+}
 
