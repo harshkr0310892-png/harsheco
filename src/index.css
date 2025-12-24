@@ -320,7 +320,7 @@
 .text-primary {
    color: hsl(220 85% 25%);
 }
-.dark..text-primary {
+.dark.text-primary {
     color: #ffffff;
 }
 .dark.text-primary
