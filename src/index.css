@@ -317,12 +317,14 @@
   --primary: 145 70% 45%;
 }
 
+/* Light mode */
 .text-primary {
-   color: hsl(220 85% 25%);
+    color: hsl(197, 100%, 50%); /* Sky blue */
 }
-.dark.text-primary {
-    color: hsl(0deg 0% 100%);
 
+/* Dark mode */
+.dark .text-primary {
+    color: hsl(0, 0%, 100%); /* White */
 }
 
 /* Light mode – pure dark / black button (image jaisa) */
