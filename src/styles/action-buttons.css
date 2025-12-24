@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Shared action button adjustments for product actions */
+  .action-btn {
+    @apply h-16 px-4 rounded-xl;
+  }
+
+  /* Make the visual border a bit thicker */
+  .action-btn--border-thick {
+    @apply border-4;
+  }
+
+  /* Specific wishlist style: slightly reduced horizontal padding, thicker border */
+  .wishlist-btn {
+    @apply border-4 border-border/70 hover:border-primary/60 hover:bg-muted/40 transition-colors;
+    @apply px-4;
+  }
+
+  /* Ensure icons inside buttons remain well aligned */
+  .action-btn > svg, .wishlist-btn > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Responsive adjustments for small screens (<= 375px) */
+@media screen and (max-width: 375px) {
+  .action-btn,
+  .wishlist-btn {
+    height: 5rem; /* larger tap target */
+    padding-left: 0.75rem; /* reduce horizontal padding */
+    padding-right: 0.75rem;
+    max-width: 320px; /* slightly narrower than full width */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .action-btn > svg,
+  .wishlist-btn > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}

@@ -38,6 +38,16 @@ export default function Products() {
     }
   }, [searchParams]);
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    if (term) {
+      setSearchParams({ search: encodeURIComponent(term) });
+    } else {
+      setSearchParams({});
+    }
+  };
+
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -64,33 +74,42 @@ export default function Products() {
       return data;
     },
   });
+        {/* Category strip */}
+        {categories && categories.length > 0 && (
+          <div className="mt-4 overflow-x-auto hide-scrollbar">
+            <div className="flex items-center gap-6 py-3 justify-center">
+              {categories.slice(0, 12).map((cat: any) => (
+                <button
+                  key={cat.id}
+                  onClick={() => { setSelectedCategory(cat.id); setCurrentPage(1); }}
+                  className={`flex flex-col items-center text-center min-w-[88px] ${selectedCategory === cat.id ? 'opacity-100' : 'opacity-80'}`}
+                >
+                  <div className="w-14 h-14 rounded-lg bg-card overflow-hidden shadow-sm flex items-center justify-center">
+                    {cat.image_url ? (
+                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-sm text-muted-foreground">{cat.name?.charAt(0)}</div>
+                    )}
+                  </div>
+                  <span className="text-xs mt-2 text-muted-foreground">{cat.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
   // Calculate min and max prices from products
   const priceRange = useMemo(() => {
     if (!products || products.length === 0) return { min: 0, max: 10000 };
-    
-    const prices = products.map(p => Number(p.price)).filter(price => !isNaN(price));
+    const prices = products.map((p: any) => Number(p.price)).filter((p: number) => !isNaN(p));
     if (prices.length === 0) return { min: 0, max: 10000 };
-    
     return {
-      min: Math.floor(Math.min(...prices) / 100) * 100, // Round down to nearest 100
-      max: Math.ceil(Math.max(...prices) / 100) * 100   // Round up to nearest 100
+      min: Math.floor(Math.min(...prices) / 100) * 100,
+      max: Math.ceil(Math.max(...prices) / 100) * 100,
     };
   }, [products]);
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    setCurrentPage(1); // Reset to first page when searching
-    
-    // Update URL with search parameter
-    if (term) {
-      setSearchParams({ search: encodeURIComponent(term) });
-    } else {
-      setSearchParams({});
-    }
-  };
-
-  const filteredProducts = products?.filter((product) => {
+  const filteredProducts = products?.filter((product: any) => {
     // Search filter - case insensitive
     if (searchTerm && !product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
@@ -111,7 +130,7 @@ export default function Products() {
     if (maxPrice !== '' && productPrice > maxPrice) return false;
     
     return true;
-  }).sort((a, b) => {
+  }).sort((a: any, b: any) => {
     // Sorting
     switch (sortBy) {
       case 'price_low':
@@ -203,7 +222,7 @@ export default function Products() {
     <Layout>
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 he">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
             Our <span className="gradient-gold-text">Collection</span>
           </h1>
@@ -241,7 +260,7 @@ export default function Products() {
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(10)].map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-square rounded-lg" />
@@ -252,7 +271,7 @@ export default function Products() {
           </div>
         ) : paginatedProducts && paginatedProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {paginatedProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}

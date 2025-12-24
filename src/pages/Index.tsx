@@ -8,6 +8,7 @@ import { Crown, Sparkles, Truck, Shield, Gift } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 
 const iconMap: Record<string, React.ElementType> = {
   crown: Crown,
@@ -53,11 +54,53 @@ export default function Index() {
   // Show only first 4 products
   const featuredProducts = products?.slice(0, 4);
 
+  // Fetch categories for top strip
+  const { data: categories } = useQuery({
+    queryKey: ['home-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const topCategories = useMemo(() => categories?.slice(0, 10) || [], [categories]);
+
 
   return (
     <Layout>
       <SpecialOfferPopup />
       
+      {/* Category strip (top) */}
+      {topCategories.length > 0 && (
+        <section className="container mx-auto px-4 py-3">
+          <div className="bg-card rounded-lg p-3">
+            <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
+              {topCategories.map((cat: any) => (
+                <Link
+                  key={cat.id}
+                  to={`/products?category=${encodeURIComponent(cat.id)}`}
+                  className="flex flex-col items-center text-center min-w-[96px]"
+                >
+                  <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shadow-sm flex items-center justify-center">
+                    {cat.image_url ? (
+                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-sm text-muted-foreground">{cat.name?.charAt(0)}</div>
+                    )}
+                  </div>
+                  <span className="text-xs mt-2 text-muted-foreground">{cat.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Banner Carousel */}
       <section className="container mx-auto px-4 py-6">
         <BannerCarousel />
@@ -114,7 +157,7 @@ export default function Index() {
         <section className="py-16 bg-card/50">
           <div className="container mx-auto px-4">
             {featuresSection.title && (
-              <h2 className="font-display text-3xl font-bold text-center mb-10">
+              <h2 className="font-display text-3xl font-bold text-center mb-10 he">
                 <span className="gradient-gold-text">{featuresSection.title}</span>
               </h2>
             )}
@@ -146,7 +189,7 @@ export default function Index() {
       {/* Featured Products */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 he">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
               <span className="gradient-gold-text">{featuredProductsSection?.title || 'Featured'}</span> Products
             </h2>
@@ -156,7 +199,7 @@ export default function Index() {
           </div>
 
           {productsLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="space-y-3">
                   <Skeleton className="aspect-square rounded-lg" />
@@ -166,7 +209,7 @@ export default function Index() {
               ))}
             </div>
           ) : featuredProducts && featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {featuredProducts.map((product, index) => (
                   <ProductCard
                     key={product.id}

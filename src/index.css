@@ -293,7 +293,7 @@
   scrollbar-width: none;
 }
 .text-secondary-foreground {
-    color: hsl(46deg 90% 56%);
+    color: hsl(0, 100%, 50%);
 }
 .text-muted-foreground {
     color: hsl(0deg 0% 0%);
@@ -329,13 +329,7 @@
 }
 
 /* Light mode – pure dark / black button (image jaisa) */
-.gradient-gold {
-  background: linear-gradient(
-    .gradient-gold {
-    background: linear-gradient(295deg, #1542b1, #000000, #272c35);
-}
-  );
-}
+
 
 /* Dark mode – tumhara original gold gradient (unchanged) */
 .dark .gradient-gold {
@@ -357,3 +351,17 @@
     border-width: 2px;
     border-radius: 38px;
 }
+.text-muted-foreground {
+    color: hsl(0deg 0% 0%);
+}
+.dark .text-muted-foreground {
+    color: hsl(0, 0%, 100%);
+    overflow-x: hidden;
+}
+.gradient-gold-text {
+    background: linear-gradient(135deg, hsl(209.25deg 78.08% 38.55%), hsl(209, 89%, 42%, 0.76), hsl(236.6deg 89.13% 50.67%));
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@import './styles/action-buttons.css';

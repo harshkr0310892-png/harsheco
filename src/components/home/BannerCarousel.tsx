@@ -33,7 +33,11 @@ const getTransformedImageUrl = (imageUrl: string, width: number, height: number)
   }
 };
 
-export function BannerCarousel() {
+interface BannerCarouselProps {
+  categories?: any[];
+}
+
+export function BannerCarousel({ categories }: BannerCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const { data: banners, isLoading } = useQuery({
@@ -78,6 +82,31 @@ export function BannerCarousel() {
 
   const BannerContent = () => (
     <div className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-2xl overflow-hidden">
+      {/* Category strip overlay (top) */}
+      {categories && categories.length > 0 && (
+        <div className="absolute top-4 left-0 right-0 pointer-events-auto">
+          <div className="container mx-auto px-4">
+            <div className="bg-background/60 backdrop-blur-md rounded-xl p-2 inline-flex gap-4 overflow-x-auto hide-scrollbar">
+              {categories.slice(0, 12).map((cat: any) => (
+                <a
+                  key={cat.id}
+                  href={`/products?category=${encodeURIComponent(cat.id)}`}
+                  className="flex flex-col items-center text-center min-w-[72px]"
+                >
+                  <div className="w-12 h-12 rounded-md bg-card overflow-hidden flex items-center justify-center">
+                    {cat.image_url ? (
+                      <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-sm text-muted-foreground">{cat.name?.charAt(0)}</div>
+                    )}
+                  </div>
+                  <span className="text-xs mt-1 text-muted-foreground">{cat.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <img
         // Use transformed image URL for better quality
         src={getTransformedImageUrl(currentBanner.image_url, 1920, 1080)}
@@ -87,8 +116,7 @@ export function BannerCarousel() {
         loading="eager"
       />
       
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+      {/* Overlay removed to display banner images as-is */}
       
       {/* Content */}
       {(currentBanner.title || currentBanner.subtitle) && (
@@ -156,5 +184,29 @@ export function BannerCarousel() {
     );
   }
 
-  return <BannerContent />;
+  return (
+    <>
+      <BannerContent />
+
+      {/* Thumbnail row of other banners below main banner */}
+      {banners.length > 1 && (
+        <div className="mt-4 container mx-auto px-4">
+          <div className="flex gap-3 items-center overflow-x-auto hide-scrollbar">
+            {banners.map((b, i) => (
+              <button
+                key={b.id}
+                onClick={() => setCurrentIndex(i)}
+                className={cn(
+                  'w-36 h-20 rounded-lg overflow-hidden flex-shrink-0 border transition-transform',
+                  i === currentIndex ? 'scale-105 border-primary' : 'border-border/30'
+                )}
+              >
+                <img src={getTransformedImageUrl(b.image_url, 600, 300)} alt={b.title || 'Banner'} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

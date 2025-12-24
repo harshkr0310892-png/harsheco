@@ -808,7 +808,7 @@ export default function ProductDetail() {
               <Button
                 variant="royal"
                 size="xl"
-                className="flex-1 h-14 md:h-16 px-5 rounded-xl shadow-sm text-base md:text-lg"
+                className="he"
                 onClick={handleAddToCart}
                 disabled={isSoldOut}
               >
@@ -818,10 +818,10 @@ export default function ProductDetail() {
               <Button
                 variant={isWishlisted ? "default" : "outline"}
                 size="xl"
-                className="flex-1 h-14 md:h-16 px-5 rounded-xl border-2 border-border/70 hover:border-primary/60 hover:bg-muted/40 transition-colors text-base md:text-lg"
+                className="hey"
                 onClick={handleToggleWishlist}
               >
-                <Heart className={cn("w-5 h-5 mr-2", isWishlisted && "fill-current animate-pulse")} />
+                <Heart className={cn("w-5 h- mr-2", isWishlisted && "fill-current animate-pulse")} />
                 {isWishlisted ? 'In Wishlist' : 'Add to Wishlist'}
               </Button>
             </div>

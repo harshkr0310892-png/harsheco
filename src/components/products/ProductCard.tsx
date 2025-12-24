@@ -177,7 +177,7 @@ export function ProductCard({
 
   return (
     <div className="group relative bg-card rounded-lg border border-border/80 overflow-hidden hover:shadow-lg transition-all duration-300 animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-square lg:aspect-[5/4] lg:h-[295px] overflow-hidden">
         {displayImage ? (
           <img 
             src={displayImage} 
@@ -211,56 +211,56 @@ export function ProductCard({
 
         {/* Quick Actions */}
         <div className={cn(
-          "absolute bottom-2 right-2 flex gap-1",
+          "absolute bottom-2 right-2 flex gap-1 sm:gap-2 flex-wrap justify-end",
           "transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100",
           "transition-all duration-300"
         )}>
           <Link to={`/product/${id}`}>
-            <Button size="icon" variant="secondary" className="rounded-full w-8 h-8 bg-background/90 backdrop-blur-sm border border-border/50 hover:bg-background">
-              <Eye className="w-3 h-3 text-primary" />
+            <Button size="icon" variant="secondary" className="rounded-full w-7 h-7 sm:w-9 sm:h-9 bg-background/90 backdrop-blur-sm border border-border/50 hover:bg-background">
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
             </Button>
           </Link>
           <Button 
             size="icon" 
             variant="secondary" 
-            className="rounded-full w-8 h-8 bg-background/90 backdrop-blur-sm border border-border/50 hover:bg-background"
+            className="rounded-full w-7 h-7 sm:w-9 sm:h-9 bg-background/90 backdrop-blur-sm border border-border/50 hover:bg-background"
             onClick={handleShare}
           >
-            <Share2 className="w-3 h-3 text-primary" />
+            <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
           </Button>
           <Button 
             size="icon" 
             variant="secondary" 
             className={cn(
-              "rounded-full w-8 h-8 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-light-blue-500/20 hover:border-blue-500/50 transition-all duration-300",
+              "rounded-full w-7 h-7 sm:w-9 sm:h-9 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-light-blue-500/20 hover:border-blue-500/50 transition-all duration-300",
               isWishlisted && "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
             onClick={handleToggleWishlist}
           >
-            <Heart className={cn("w-3 h-3", isWishlisted && "fill-current animate-pulse")} />
+            <Heart className={cn("w-3 h-3 sm:w-4 sm:h-4", isWishlisted && "fill-current animate-pulse")} />
           </Button>
           <Button 
             size="icon" 
             variant="royal" 
-            className="rounded-full w-8 h-8"
+            className="rounded-full w-7 h-7 sm:w-9 sm:h-9"
             onClick={handleAddToCart}
             disabled={isSoldOut}
           >
-            <ShoppingBag className="w-3 h-3" />
+            <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <Link to={`/product/${id}`} className="block p-3">
-        <h3 className="font-display text-sm font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+      <Link to={`/product/${id}`} className="block p-3 lg:p-4">
+        <h3 className="font-display text-sm lg:text-base font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
           {name}
         </h3>
         
         <div className="mt-1 flex items-center gap-2">
           {discount_percentage > 0 ? (
             <>
-              <span className="font-display text-base font-bold text-primary">
+              <span className="font-display text-base lg:text-lg font-bold text-primary">
                 ₹{discountedPrice.toFixed(2)}
               </span>
               <span className="text-xs text-muted-foreground line-through">
@@ -268,7 +268,7 @@ export function ProductCard({
               </span>
             </>
           ) : (
-            <span className="font-display text-base font-bold text-primary">
+            <span className="font-display text-base lg:text-lg font-bold text-primary">
               ₹{price.toFixed(2)}
             </span>
           )}

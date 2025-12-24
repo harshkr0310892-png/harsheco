@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Crown, LogOut, Plus, Trash2, Edit2, Loader2, RefreshCw, 
   Upload, X, Image as ImageIcon, MessageSquare, Layout, Megaphone, ArrowLeft
@@ -62,6 +63,15 @@ interface HomeSection {
   is_active: boolean;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
 export default function AdminCMS() {
   const navigate = useNavigate();
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -73,16 +83,18 @@ export default function AdminCMS() {
   const [popupDialogOpen, setPopupDialogOpen] = useState(false);
   const [faqDialogOpen, setFaqDialogOpen] = useState(false);
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   
   // Editing states
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [editingPopup, setEditingPopup] = useState<PopupOffer | null>(null);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [editingSection, setEditingSection] = useState<HomeSection | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   
   // Upload states
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [currentUploadTarget, setCurrentUploadTarget] = useState<'banner' | 'popup'>('banner');
+  const [currentUploadTarget, setCurrentUploadTarget] = useState<'banner' | 'popup' | 'category'>('banner');
   
   // Form states
   const [bannerForm, setBannerForm] = useState({
@@ -116,6 +128,14 @@ export default function AdminCMS() {
     title: '',
     subtitle: '',
     content: '{}',
+    sort_order: '0',
+    is_active: true,
+  });
+
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    description: '',
+    image_url: '',
     sort_order: '0',
     is_active: true,
   });
@@ -182,6 +202,18 @@ export default function AdminCMS() {
     },
   });
 
+  const { data: categories, isLoading: categoriesLoading, refetch: refetchCategories } = useQuery({
+    queryKey: ['admin-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data as Category[];
+    },
+  });
+
   // Image upload handler
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -224,8 +256,10 @@ export default function AdminCMS() {
 
       if (currentUploadTarget === 'banner') {
         setBannerForm({ ...bannerForm, image_url: publicUrl });
-      } else {
+      } else if (currentUploadTarget === 'popup') {
         setPopupForm({ ...popupForm, image_url: publicUrl });
+      } else if (currentUploadTarget === 'category') {
+        setCategoryForm({ ...categoryForm, image_url: publicUrl });
       }
       
       toast.success('Image uploaded successfully!');
@@ -401,6 +435,44 @@ export default function AdminCMS() {
     },
   });
 
+  const categoryMutation = useMutation({
+    mutationFn: async (category: typeof categoryForm & { id?: string }) => {
+      const data = {
+        name: category.name,
+        description: category.description || null,
+        image_url: category.image_url || null,
+        sort_order: parseInt(category.sort_order) || 0,
+        is_active: category.is_active,
+      };
+
+      if (category.id) {
+        const { error } = await supabase.from('categories').update(data).eq('id', category.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('categories').insert(data);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      toast.success(editingCategory ? 'Category updated!' : 'Category added!');
+      resetCategoryForm();
+      setCategoryDialogOpen(false);
+    },
+    onError: () => toast.error('Failed to save category'),
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      toast.success('Category deleted!');
+    },
+  });
+
   // Reset functions
   const resetBannerForm = () => {
     setBannerForm({ image_url: '', title: '', subtitle: '', link_url: '', sort_order: '0', is_active: true });
@@ -420,6 +492,11 @@ export default function AdminCMS() {
   const resetSectionForm = () => {
     setSectionForm({ section_type: 'custom', title: '', subtitle: '', content: '{}', sort_order: '0', is_active: true });
     setEditingSection(null);
+  };
+
+  const resetCategoryForm = () => {
+    setCategoryForm({ name: '', description: '', image_url: '', sort_order: '0', is_active: true });
+    setEditingCategory(null);
   };
 
   // Edit handlers
@@ -474,6 +551,18 @@ export default function AdminCMS() {
     setSectionDialogOpen(true);
   };
 
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      name: category.name,
+      description: category.description || '',
+      image_url: category.image_url || '',
+      sort_order: category.sort_order.toString(),
+      is_active: category.is_active,
+    });
+    setCategoryDialogOpen(true);
+  };
+
   if (!isAdminLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -510,7 +599,7 @@ export default function AdminCMS() {
         />
 
         <Tabs defaultValue="banners" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsList className="grid w-full max-w-3xl grid-cols-5">
             <TabsTrigger value="banners" className="flex items-center gap-2">
               <ImageIcon className="w-4 h-4" />
               Banners
@@ -526,6 +615,10 @@ export default function AdminCMS() {
             <TabsTrigger value="sections" className="flex items-center gap-2">
               <Layout className="w-4 h-4" />
               Sections
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" />
+              Categories
             </TabsTrigger>
           </TabsList>
 
@@ -885,6 +978,204 @@ export default function AdminCMS() {
               <div className="text-center py-12 bg-card rounded-xl border border-border/50">
                 <Layout className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-muted-foreground">No sections yet.</p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Categories Tab */}
+          <TabsContent value="categories" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-2xl font-bold">Product Categories</h2>
+                <p className="text-sm text-muted-foreground">Manage product categories with images</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={() => refetchCategories()}>
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="royal"
+                      size="sm"
+                      onClick={() => {
+                        resetCategoryForm();
+                        setCategoryDialogOpen(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Category
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="category-name">Category Name</Label>
+                        <Input
+                          id="category-name"
+                          value={categoryForm.name}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                          placeholder="e.g., Electronics"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="category-description">Description</Label>
+                        <Textarea
+                          id="category-description"
+                          value={categoryForm.description}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                          placeholder="Category description"
+                          rows={3}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Category Image</Label>
+                        <div className="flex items-center gap-4">
+                          {categoryForm.image_url && (
+                            <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border/50">
+                              <img
+                                src={categoryForm.image_url}
+                                alt="Category"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                onClick={() => setCategoryForm({ ...categoryForm, image_url: '' })}
+                                className="absolute top-1 right-1 bg-destructive/80 text-white p-1 rounded hover:bg-destructive"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setCurrentUploadTarget('category');
+                              fileInputRef.current?.click();
+                            }}
+                            disabled={uploadingImage}
+                          >
+                            {uploadingImage ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Upload Image
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="category-sort">Sort Order</Label>
+                          <Input
+                            id="category-sort"
+                            type="number"
+                            value={categoryForm.sort_order}
+                            onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: e.target.value })}
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          <div className="flex-1">
+                            <Label htmlFor="category-active" className="flex items-center gap-2">
+                              <Switch
+                                id="category-active"
+                                checked={categoryForm.is_active}
+                                onCheckedChange={(checked) => setCategoryForm({ ...categoryForm, is_active: checked })}
+                              />
+                              Active
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        onClick={() => {
+                          if (!categoryForm.name.trim()) {
+                            toast.error('Category name is required');
+                            return;
+                          }
+                          categoryMutation.mutate({
+                            ...categoryForm,
+                            id: editingCategory?.id,
+                          });
+                        }}
+                        disabled={categoryMutation.isPending}
+                      >
+                        {categoryMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          editingCategory ? 'Update Category' : 'Add Category'
+                        )}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+
+            {categoriesLoading ? (
+              <div className="grid gap-4">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-lg" />
+                ))}
+              </div>
+            ) : categories && categories.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4">
+                {categories.map((category) => (
+                  <div key={category.id} className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border/50 hover:border-primary/50 transition-colors">
+                    {category.image_url && (
+                      <img
+                        src={category.image_url}
+                        alt={category.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground">{category.name}</h3>
+                      {category.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">{category.description}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">Order: {category.sort_order} {category.is_active ? '✓' : '✗'}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditCategory(category)}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteCategoryMutation.mutate(category.id)}
+                        disabled={deleteCategoryMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-card rounded-xl border border-border/50">
+                <ImageIcon className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">No categories yet.</p>
               </div>
             )}
           </TabsContent>
