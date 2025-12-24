@@ -339,13 +339,14 @@
 
 /* Dark mode – tumhara original gold gradient (unchanged) */
 .dark .gradient-gold {
-   background: linear-gradient(
-        135deg, 
-        hsl(45, 75%, 35%),   /* deep warm gold */
-        hsl(50, 90%, 50%),   /* bright amber highlight */
-        hsl(42, 85%, 60%)    /* soft shiny gold */
-  );
+    background: linear-gradient(
+        146deg, 
+        hsl(228.63deg 97.82% 45.45%), 
+        hsl(180deg 87.1% 28.28%), 
+        hsl(187.83deg 91.08% 42.11%)
+    );
 }
+
 .text-primary-foreground {
     color: hsl(0deg 0% 100%);
 }
