@@ -339,3 +339,6 @@
     hsl(var(--gold-light))
   );
 }
+.text-primary-foreground {
+    color: hsl(0deg 0% 100%);
+}
