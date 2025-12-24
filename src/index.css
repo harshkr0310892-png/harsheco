@@ -295,3 +295,6 @@
 .text-secondary-foreground {
     color: hsl(46deg 90% 56%);
 }
+.text-muted-foreground {
+    color: hsl(0deg 0% 0%);
+}
