@@ -309,3 +309,14 @@
   color: hsl(var(--primary));
 }
 
+:root {
+  --primary: 210 90% 56%;
+}
+
+.dark {
+  --primary: 145 70% 45%;
+}
+
+.text-primary {
+  color: hsl(var(--primary));
+}
