@@ -353,3 +353,8 @@
 .gradient-gold {
     background: linear-gradient(295deg, #1542b1, #000000, #272c35);
 }
+.border-2 {
+    border-width: 2px;
+    height: 400px;       /* elementki height badh gayi */
+    padding: 20px; 
+}
