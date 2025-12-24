@@ -341,3 +341,6 @@
 .text-primary-foreground {
     color: hsl(0deg 0% 100%);
 }
+.gradient-gold {
+    background: linear-gradient(295deg, #1542b1, #000000, #272c35);
+}
