@@ -323,10 +323,9 @@
 /* Light mode – pure dark / black button (image jaisa) */
 .gradient-gold {
   background: linear-gradient(
-    135deg,
-    hsl(220 15% 10%),
-    hsl(220 15% 14%),
-    hsl(220 15% 18%)
+    .gradient-gold {
+    background: linear-gradient(295deg, #1542b1, #000000, #272c35);
+}
   );
 }
 
