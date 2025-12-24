@@ -319,7 +319,8 @@
 
 /* Light mode */
 .text-primary {
-    color: hsl(197, 100%, 50%); /* Sky blue */
+    color: hsl(236, 99%, 49%);
+/* Sky blue */
 }
 
 /* Dark mode */
