@@ -334,9 +334,9 @@
 .dark .gradient-gold {
   background: linear-gradient(
     135deg,
-    hsl(0deg 0% 0%),
-    hsl(43deg 60% 33.06%),
-    hsl(var(--gold-light))
+    hsl(45 100% 50%),
+    hsl(43 95% 55%),
+    hsl(48 100% 60%)
   );
 }
 .text-primary-foreground {
