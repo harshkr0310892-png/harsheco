@@ -318,7 +318,7 @@
 }
 
 .text-primary {
-  color: hsl(var(--primary));
+   color: hsl(0deg 0% 0%);
 }
 /* Light mode – pure dark / black button (image jaisa) */
 .gradient-gold {
