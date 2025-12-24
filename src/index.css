@@ -321,7 +321,8 @@
    color: hsl(220 85% 25%);
 }
 .dark.text-primary {
-    color: #ffffff;
+    color: hsl(0deg 0% 100%);
+
 }
 
 /* Light mode – pure dark / black button (image jaisa) */
