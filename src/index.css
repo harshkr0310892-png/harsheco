@@ -298,3 +298,7 @@
 .text-muted-foreground {
     color: hsl(0deg 0% 0%);
 }
+.dark .text-muted-foreground {
+    color: hsl(0deg 0% 100%);
+}
+
